@@ -4,18 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import modelo.Evento;
 import modelo.Asistente;
 import modelo.recursos.Recurso;
 import modelo.recursos.Ubicacion;
 import gestor.GestorUbicaciones;
-import interfaz.PanelAsistentes;
-import interfaz.PanelRecursos;
 import util.ValidadorCampos;
 
-// Vista modal para mostrar y editar detalles de un evento y permitir eliminarlo
 public class VistaDetalleEvento extends JDialog {
     private JTextField txtNombre;
     private JTextArea txtDescripcion;
@@ -65,7 +61,7 @@ public class VistaDetalleEvento extends JDialog {
 
         gbc.gridx = 0;
         gbc.gridy++;
-        panelCampos.add(new JLabel("Fecha (dd/MM/yyyy):"), gbc);
+        panelCampos.add(new JLabel("Fecha (dd/mm/aaaa):"), gbc);
         gbc.gridx = 1;
         txtFecha = new JTextField(evento.getFecha().format(FORMATO_FECHA), 32);
         txtFecha.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -79,7 +75,6 @@ public class VistaDetalleEvento extends JDialog {
         cmbUbicacion.setSelectedItem(evento.getUbicacion());
         panelCampos.add(cmbUbicacion, gbc);
 
-        // Panel asistentes y recursos
         panelAsistentes = new PanelAsistentes(evento.getAsistentes());
         panelRecursos = new PanelRecursos(evento.getRecursos(), evento.getUbicacion());
         pestañas = new JTabbedPane();
@@ -104,6 +99,7 @@ public class VistaDetalleEvento extends JDialog {
             }
         });
         btnEliminar.addActionListener(e -> {
+            JOptionPane.setDefaultLocale(new java.util.Locale("es", "AR"));
             int confirm = JOptionPane.showConfirmDialog(this, "¿Está seguro que desea eliminar este evento?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 eliminarPresionado = true;
@@ -170,7 +166,6 @@ public class VistaDetalleEvento extends JDialog {
         return panelRecursos.getRecursos();
     }
 
-    // (Opcional) Método para refrescar datos si se desea reutilizar la vista
     public void setDatos(Evento evento) {
         txtNombre.setText(evento.getNombre());
         txtDescripcion.setText(evento.getDescripcion());

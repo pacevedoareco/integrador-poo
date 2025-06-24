@@ -8,6 +8,7 @@ import modelo.recursos.Catering;
 import modelo.recursos.EquipoAudiovisual;
 import modelo.recursos.Ubicacion;
 import gestor.GestorUbicaciones;
+import persistencia.Persistencia;
 
 // Formulario modal para agregar o editar un recurso global
 public class FormularioRecursoGlobal extends JDialog {
@@ -91,11 +92,9 @@ public class FormularioRecursoGlobal extends JDialog {
         panelBotones.add(btnCancelar);
         add(panelBotones, BorderLayout.SOUTH);
 
-        // Mostrar/ocultar campos según tipo
         cmbTipo.addActionListener(e -> actualizarCamposVisibles());
         actualizarCamposVisibles();
 
-        // Si es edición, cargar datos
         if (recursoOriginal != null) {
             cmbTipo.setSelectedItem(recursoOriginal.getTipo());
             txtNombre.setText(recursoOriginal.getNombre());
@@ -113,7 +112,18 @@ public class FormularioRecursoGlobal extends JDialog {
         btnGuardar.addActionListener(e -> {
             if (validarCampos()) {
                 aceptado = true;
-                recursoResultante = construirRecurso(recursoOriginal == null ? -1 : recursoOriginal.getId());
+                int id;
+                if (recursoOriginal == null) {
+                    String tipo = (String) cmbTipo.getSelectedItem();
+                    if ("Salón".equals(tipo) || "Catering".equals(tipo) || "Equipo Audiovisual".equals(tipo) || "Ubicación".equals(tipo)) {
+                        id = Persistencia.getSiguienteIdRecurso();
+                    } else {
+                        id = -1;
+                    }
+                } else {
+                    id = recursoOriginal.getId();
+                }
+                recursoResultante = construirRecurso(id);
                 setVisible(false);
             }
         });
@@ -128,7 +138,6 @@ public class FormularioRecursoGlobal extends JDialog {
         boolean esSalon = "Salón".equals(tipo);
         boolean esCatering = "Catering".equals(tipo);
         boolean esEquipo = "Equipo Audiovisual".equals(tipo);
-        boolean esUbicacion = "Ubicación".equals(tipo);
         lblCapacidad.setVisible(esSalon);
         txtCapacidad.setVisible(esSalon);
         lblUbicacion.setVisible(esSalon);
@@ -197,10 +206,14 @@ public class FormularioRecursoGlobal extends JDialog {
         return recursoResultante;
     }
 
-    public void refrescarUbicacionesCombo() {
-        cmbUbicacion.removeAllItems();
+    public static void refrescarComboUbicaciones(JComboBox<Ubicacion> combo) {
+        combo.removeAllItems();
         for (Ubicacion u : GestorUbicaciones.getInstancia().listarUbicaciones()) {
-            cmbUbicacion.addItem(u);
+            combo.addItem(u);
         }
+    }
+
+    public void refrescarUbicacionesCombo() {
+        refrescarComboUbicaciones(cmbUbicacion);
     }
 } 

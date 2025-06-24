@@ -4,15 +4,21 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import gestor.GestorRecursos;
+import gestor.GestorUbicaciones;
 import modelo.recursos.Recurso;
 import modelo.recursos.Salon;
 import modelo.recursos.Catering;
 import modelo.recursos.EquipoAudiovisual;
 import modelo.recursos.Ubicacion;
+import persistencia.Persistencia;
+import gestor.GestorEventos;
+import modelo.Evento;
 
 // Ventana modal para la gestión global de recursos
 public class VentanaGestionRecursos extends JDialog {
     private GestorRecursos gestor;
+    private GestorUbicaciones gestorUbicaciones;
+    private GestorEventos gestorEventos;
     private JTable tablaRecursos;
     private DefaultTableModel modeloTabla;
     private JButton btnAgregar;
@@ -23,6 +29,8 @@ public class VentanaGestionRecursos extends JDialog {
     public VentanaGestionRecursos(JFrame parent) {
         super(parent, "Gestión de Recursos Globales", true);
         this.gestor = GestorRecursos.getInstancia();
+        this.gestorUbicaciones = GestorUbicaciones.getInstancia();
+        this.gestorEventos = GestorEventos.getInstancia();
         setSize(600, 400);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
@@ -36,9 +44,6 @@ public class VentanaGestionRecursos extends JDialog {
         };
         tablaRecursos = new JTable(modeloTabla);
         JScrollPane scroll = new JScrollPane(tablaRecursos);
-        // Ocultar columna ID
-        tablaRecursos.getColumnModel().getColumn(0).setMinWidth(0);
-        tablaRecursos.getColumnModel().getColumn(0).setMaxWidth(0);
         tablaRecursos.getColumnModel().getColumn(0).setWidth(0);
         add(scroll, BorderLayout.CENTER);
 
@@ -76,7 +81,13 @@ public class VentanaGestionRecursos extends JDialog {
         FormularioRecursoGlobal form = new FormularioRecursoGlobal((JFrame) getParent(), null);
         form.setVisible(true);
         if (form.isAceptado()) {
-            gestor.agregarRecurso(form.getRecurso());
+            Recurso nuevo = form.getRecurso();
+            if (nuevo instanceof Ubicacion) {
+                gestorUbicaciones.agregarUbicacion((Ubicacion) nuevo);
+                Persistencia.guardarUbicacionesGlobales(gestorUbicaciones.listarUbicaciones());
+            } else {
+                gestor.agregarRecurso(nuevo);
+            }
             actualizarTabla();
             form.refrescarUbicacionesCombo();
         }
@@ -86,15 +97,25 @@ public class VentanaGestionRecursos extends JDialog {
         int fila = tablaRecursos.getSelectedRow();
         if (fila == -1) return;
         int id = (int) modeloTabla.getValueAt(fila, 0);
-        Recurso original = gestor.listarRecursos().stream().filter(r -> r.getId() == id).findFirst().orElse(null);
+        String tipo = (String) modeloTabla.getValueAt(fila, 1);
+        Recurso original = null;
+        if ("Ubicación".equals(tipo)) {
+            original = gestorUbicaciones.listarUbicaciones().stream().filter(u -> u.getId() == id).findFirst().orElse(null);
+        } else {
+            original = gestor.listarRecursos().stream().filter(r -> r.getId() == id).findFirst().orElse(null);
+        }
         if (original == null) return;
         FormularioRecursoGlobal form = new FormularioRecursoGlobal((JFrame) getParent(), original);
         form.setVisible(true);
         if (form.isAceptado()) {
             Recurso editado = form.getRecurso();
-            // Mantener el mismo ID
             editado.setId(original.getId());
-            gestor.editarRecurso(editado);
+            if (editado instanceof Ubicacion) {
+                gestorUbicaciones.editarUbicacion((Ubicacion) editado);
+                Persistencia.guardarUbicacionesGlobales(gestorUbicaciones.listarUbicaciones());
+            } else {
+                gestor.editarRecurso(editado);
+            }
             actualizarTabla();
         }
     }
@@ -103,28 +124,86 @@ public class VentanaGestionRecursos extends JDialog {
         int fila = tablaRecursos.getSelectedRow();
         if (fila == -1) return;
         int id = (int) modeloTabla.getValueAt(fila, 0);
-        gestor.eliminarRecurso(id);
+        String tipo = (String) modeloTabla.getValueAt(fila, 1);
+        if ("Ubicación".equals(tipo)) {
+            // Validar dependencias antes de eliminar
+            boolean enUso = false;
+            // Buscar en salones globales
+            for (Recurso r : gestor.listarRecursos()) {
+                if (r instanceof Salon) {
+                    Salon s = (Salon) r;
+                    if (s.getUbicacion() != null && s.getUbicacion().getId() == id) {
+                        enUso = true;
+                        break;
+                    }
+                }
+            }
+            // Buscar en eventos
+            if (!enUso) {
+                for (Evento ev : gestorEventos.listarEventos()) {
+                    if (ev.getUbicacion() != null && ev.getUbicacion().getId() == id) {
+                        enUso = true;
+                        break;
+                    }
+                    // Buscar en recursos del evento
+                    for (Recurso r : ev.getRecursos()) {
+                        if (r instanceof Salon) {
+                            Salon s = (Salon) r;
+                            if (s.getUbicacion() != null && s.getUbicacion().getId() == id) {
+                                enUso = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (enUso) break;
+                }
+            }
+            if (enUso) {
+                JOptionPane.showMessageDialog(this, "No se puede eliminar la ubicación porque está en uso por un salón o evento.", "Ubicación en uso", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            gestorUbicaciones.eliminarUbicacion(id);
+            Persistencia.guardarUbicacionesGlobales(gestorUbicaciones.listarUbicaciones());
+        } else {
+            gestor.eliminarRecurso(id);
+        }
         actualizarTabla();
     }
 
     private void actualizarTabla() {
         modeloTabla.setRowCount(0);
+        // Listar recursos
         for (Recurso r : gestor.listarRecursos()) {
             modeloTabla.addRow(new Object[]{r.getId(), r.getTipo(), r.getNombre(), r.getDetalle()});
+        }
+        // Listar ubicaciones
+        for (Ubicacion u : gestorUbicaciones.listarUbicaciones()) {
+            modeloTabla.addRow(new Object[]{u.getId(), u.getTipo(), u.getNombre(), u.getDetalle()});
         }
     }
 
     // Editar recurso por fila (doble clic)
     private void editarRecursoPorFila(int fila) {
         int id = (int) modeloTabla.getValueAt(fila, 0);
-        Recurso original = gestor.listarRecursos().stream().filter(r -> r.getId() == id).findFirst().orElse(null);
+        String tipo = (String) modeloTabla.getValueAt(fila, 1);
+        Recurso original = null;
+        if ("Ubicación".equals(tipo)) {
+            original = gestorUbicaciones.listarUbicaciones().stream().filter(u -> u.getId() == id).findFirst().orElse(null);
+        } else {
+            original = gestor.listarRecursos().stream().filter(r -> r.getId() == id).findFirst().orElse(null);
+        }
         if (original == null) return;
         FormularioRecursoGlobal form = new FormularioRecursoGlobal((JFrame) getParent(), original);
         form.setVisible(true);
         if (form.isAceptado()) {
             Recurso editado = form.getRecurso();
             editado.setId(original.getId());
-            gestor.editarRecurso(editado);
+            if (editado instanceof Ubicacion) {
+                gestorUbicaciones.editarUbicacion((Ubicacion) editado);
+                Persistencia.guardarUbicacionesGlobales(gestorUbicaciones.listarUbicaciones());
+            } else {
+                gestor.editarRecurso(editado);
+            }
             actualizarTabla();
         }
     }

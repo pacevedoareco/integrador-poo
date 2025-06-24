@@ -3,7 +3,6 @@ package modelo;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDate;
-import modelo.Asistente;
 import modelo.recursos.Recurso;
 import modelo.recursos.Ubicacion;
 

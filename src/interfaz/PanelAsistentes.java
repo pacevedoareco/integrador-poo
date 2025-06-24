@@ -131,21 +131,29 @@ public class PanelAsistentes extends JPanel {
     }
 
     private void agregarSeleccionados() {
-        int[] filas = tablaGlobales.getSelectedRows();
+        agregarAsistentesSeleccionados(tablaGlobales, modeloGlobales, asistentesGlobales);
+    }
+
+    private void quitarSeleccionados() {
+        quitarAsistentesSeleccionados(tablaEvento, modeloEvento, asistentesEvento);
+    }
+
+    private void agregarAsistentesSeleccionados(JTable tabla, DefaultTableModel modelo, List<Asistente> fuente) {
+        int[] filas = tabla.getSelectedRows();
         for (int fila : filas) {
-            int id = (int) modeloGlobales.getValueAt(fila, 0);
-            Asistente a = asistentesGlobales.stream().filter(as -> as.getId() == id).findFirst().orElse(null);
+            int id = (int) modelo.getValueAt(fila, 0);
+            Asistente a = fuente.stream().filter(as -> as.getId() == id).findFirst().orElse(null);
             if (a != null && !asistentesEvento.contains(a)) asistentesEvento.add(a);
         }
         actualizarTablas();
     }
 
-    private void quitarSeleccionados() {
-        int[] filas = tablaEvento.getSelectedRows();
+    private void quitarAsistentesSeleccionados(JTable tabla, DefaultTableModel modelo, List<Asistente> fuente) {
+        int[] filas = tabla.getSelectedRows();
         List<Asistente> aQuitar = new ArrayList<>();
         for (int fila : filas) {
-            int id = (int) modeloEvento.getValueAt(fila, 0);
-            Asistente a = asistentesEvento.stream().filter(as -> as.getId() == id).findFirst().orElse(null);
+            int id = (int) modelo.getValueAt(fila, 0);
+            Asistente a = fuente.stream().filter(as -> as.getId() == id).findFirst().orElse(null);
             if (a != null) aQuitar.add(a);
         }
         asistentesEvento.removeAll(aQuitar);
@@ -177,22 +185,12 @@ public class PanelAsistentes extends JPanel {
 
     // Agrega un asistente global al evento por índice de fila
     private void agregarAsistentePorFila(int fila) {
-        int id = (int) modeloGlobales.getValueAt(fila, 0);
-        Asistente a = asistentesGlobales.stream().filter(as -> as.getId() == id).findFirst().orElse(null);
-        if (a != null && !asistentesEvento.contains(a)) {
-            asistentesEvento.add(a);
-            actualizarTablas();
-        }
+        agregarAsistentesSeleccionados(tablaGlobales, modeloGlobales, asistentesGlobales);
     }
 
     // Quita un asistente del evento por índice de fila
     private void quitarAsistentePorFila(int fila) {
-        int id = (int) modeloEvento.getValueAt(fila, 0);
-        Asistente a = asistentesEvento.stream().filter(as -> as.getId() == id).findFirst().orElse(null);
-        if (a != null) {
-            asistentesEvento.remove(a);
-            actualizarTablas();
-        }
+        quitarAsistentesSeleccionados(tablaEvento, modeloEvento, asistentesEvento);
     }
 
     // Crear un nuevo asistente global desde el panel

@@ -4,7 +4,7 @@ import gestor.GestorEventos;
 import interfaz.VentanaPrincipal;
 import interfaz.FormularioEvento;
 import modelo.Evento;
-import persistencia.GeneradorId;
+import persistencia.Persistencia;
 import java.time.LocalDate;
 import javax.swing.JOptionPane;
 import java.awt.event.MouseAdapter;
@@ -22,13 +22,11 @@ public class Main {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            GestorEventos gestor = new GestorEventos();
+            GestorEventos gestor = GestorEventos.getInstancia();
             VentanaPrincipal ventana = new VentanaPrincipal();
 
-            // Cargar eventos del mes actual
             cargarEventosMesActual(ventana, gestor);
 
-            // Listeners para navegación de calendario
             ventana.getPanelCalendario().getBtnAnterior().addActionListener(e -> {
                 ventana.getPanelCalendario().mostrarMesAnterior();
                 cargarEventosMesActual(ventana, gestor);
@@ -38,18 +36,17 @@ public class Main {
                 cargarEventosMesActual(ventana, gestor);
             });
 
-            // Listener para agregar evento
             ventana.getBtnAgregarEvento().addActionListener(e -> {
                 FormularioEvento form = new FormularioEvento(ventana);
                 form.setVisible(true);
                 if (form.isAceptado()) {
                     try {
                         Evento nuevo = new Evento(
-                                GeneradorId.siguienteIdEvento(),
-                                form.getNombre(),
-                                form.getDescripcion(),
-                                LocalDate.parse(form.getFecha(), FORMATO_FECHA),
-                                form.getUbicacion()
+                            Persistencia.getSiguienteIdEvento(),
+                            form.getNombre(),
+                            form.getDescripcion(),
+                            LocalDate.parse(form.getFecha(), FORMATO_FECHA),
+                            form.getUbicacion()
                         );
                         nuevo.getAsistentes().addAll(form.getAsistentes());
                         nuevo.getRecursos().addAll(form.getRecursos());
@@ -62,7 +59,6 @@ public class Main {
                 }
             });
 
-            // Listener para editar evento (botón)
             ventana.getBtnEditarEvento().addActionListener(e -> {
                 int fila = ventana.getTablaEventos().getSelectedRow();
                 if (fila == -1) {
@@ -72,7 +68,6 @@ public class Main {
                 abrirVistaDetalleEvento(ventana, gestor, fila);
             });
 
-            // Listener para doble clic en la tabla
             ventana.getTablaEventos().addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent e) {
                     if (e.getClickCount() == 2) {
@@ -84,19 +79,16 @@ public class Main {
                 }
             });
 
-            // Listener para ver reportes
             ventana.getBtnVerReportes().addActionListener(e -> {
                 PanelReporte reporte = new PanelReporte(ventana, gestor);
                 reporte.setVisible(true);
             });
 
-            // Listener para gestionar recursos
             ventana.getBtnGestionarRecursos().addActionListener(e -> {
                 VentanaGestionRecursos vgr = new VentanaGestionRecursos(ventana);
                 vgr.setVisible(true);
             });
 
-            // Listener para gestionar asistentes
             ventana.getBtnGestionarAsistentes().addActionListener(e -> {
                 VentanaGestionAsistentes vga = new VentanaGestionAsistentes(ventana);
                 vga.setVisible(true);
@@ -108,21 +100,20 @@ public class Main {
 
     private static void cargarEventosMesActual(VentanaPrincipal ventana, GestorEventos gestor) {
         LocalDate mesActual = ventana.getPanelCalendario().getMesActual();
-        String nombreMes = mesActual.getMonth().getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("es", "ES"));
+        String nombreMes = mesActual.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.forLanguageTag("es-AR"));
+
         String titulo = "Eventos de " + nombreMes.substring(0,1).toUpperCase() + nombreMes.substring(1) + " " + mesActual.getYear();
         ventana.setTituloEventos(titulo);
         List<Evento> eventosMes = gestor.listarEventos().stream()
                 .filter(ev -> ev.getFecha().getYear() == mesActual.getYear() && ev.getFecha().getMonthValue() == mesActual.getMonthValue())
                 .sorted((e1, e2) -> e1.getFecha().compareTo(e2.getFecha()))
                 .collect(Collectors.toList());
-        // Actualizar calendario
         ventana.getPanelCalendario().setEventosDelMes(eventosMes);
-        // Actualizar tabla
         String[] columnas = {"ID", "Nombre", "Descripción", "Fecha", "Ubicación"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Ninguna celda es editable
+                return false;
             }
         };
         int filaHoy = -1;
@@ -135,13 +126,11 @@ public class Main {
             }
         }
         ventana.getTablaEventos().setModel(modelo);
-        // Ocultar columna ID
         if (ventana.getTablaEventos().getColumnCount() > 0) {
             ventana.getTablaEventos().getColumnModel().getColumn(0).setMinWidth(0);
             ventana.getTablaEventos().getColumnModel().getColumn(0).setMaxWidth(0);
             ventana.getTablaEventos().getColumnModel().getColumn(0).setWidth(0);
         }
-        // Seleccionar el primer evento de hoy si existe
         if (filaHoy != -1) {
             ventana.getTablaEventos().setRowSelectionInterval(filaHoy, filaHoy);
             ventana.getTablaEventos().scrollRectToVisible(ventana.getTablaEventos().getCellRect(filaHoy, 0, true));
@@ -163,7 +152,6 @@ public class Main {
                         vista.getFechaLocalDate(),
                         vista.getUbicacion()
                 );
-                // Actualizar asistentes y recursos
                 editado.getAsistentes().addAll(vista.getAsistentes());
                 editado.getRecursos().addAll(vista.getRecursos());
                 gestor.editarEvento(evento.getId(), editado);

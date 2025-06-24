@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import modelo.recursos.Recurso;
 import persistencia.Persistencia;
 
-// Gestor centralizado de recursos globales
 public class GestorRecursos implements GestorEntidad<Recurso> {
     private static GestorRecursos instancia;
     private List<Recurso> recursos;
@@ -34,12 +33,10 @@ public class GestorRecursos implements GestorEntidad<Recurso> {
     }
 
     public void editarRecurso(Recurso recursoEditado) {
-        for (int i = 0; i < recursos.size(); i++) {
-            if (recursos.get(i).getId() == recursoEditado.getId()) {
-                recursos.set(i, recursoEditado);
-                break;
-            }
-        }
+        recursos.stream()
+        .filter(r -> r.getId() == recursoEditado.getId())
+        .findFirst()
+        .ifPresent(r -> recursos.set(recursos.indexOf(r), recursoEditado));    
         Persistencia.guardarRecursosGlobales(recursos);
     }
 

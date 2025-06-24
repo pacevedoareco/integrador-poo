@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import modelo.Asistente;
 import persistencia.Persistencia;
 
-// Gestor centralizado de asistentes globales
 public class GestorAsistentes implements GestorEntidad<Asistente> {
     private static GestorAsistentes instancia;
     private List<Asistente> asistentes;

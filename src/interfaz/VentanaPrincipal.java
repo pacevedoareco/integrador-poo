@@ -3,7 +3,6 @@ package interfaz;
 import javax.swing.*;
 import java.awt.*;
 
-// Ventana principal de la aplicación de gestión de eventos
 public class VentanaPrincipal extends JFrame {
     private PanelCalendario panelCalendario;
     private JTable tablaEventos;
@@ -22,32 +21,25 @@ public class VentanaPrincipal extends JFrame {
         setLayout(new BorderLayout(10, 10));
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-        // Panel superior: calendario
         panelCalendario = new PanelCalendario();
-        // Centro: tabla de eventos
-        tablaEventos = new JTable(); // El modelo se setea desde el controlador
+        tablaEventos = new JTable();
         JScrollPane scrollTabla = new JScrollPane(tablaEventos);
-        // Título arriba de la tabla
         lblTituloEventos = new JLabel();
         lblTituloEventos.setFont(new Font("Arial", Font.BOLD, 20));
         lblTituloEventos.setHorizontalAlignment(SwingConstants.CENTER);
         JPanel panelTitulo = new JPanel(new BorderLayout());
         panelTitulo.add(lblTituloEventos, BorderLayout.CENTER);
-        // Panel central con título, tabla y calendario
         JPanel panelCentral = new JPanel();
         panelCentral.setLayout(new BorderLayout(10, 10));
-        // Panel intermedio para título y tabla (vertical)
         JPanel panelTituloTabla = new JPanel();
         panelTituloTabla.setLayout(new BoxLayout(panelTituloTabla, BoxLayout.Y_AXIS));
-        panelTituloTabla.add(panelTitulo);
-        // Espacio entre título y tabla
         panelTituloTabla.add(Box.createVerticalStrut(10));
-        // Limitar altura de la tabla al 30% de la pantalla
-        int alturaMaxTabla = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.3);
+        panelTituloTabla.add(panelTitulo);
+        panelTituloTabla.add(Box.createVerticalStrut(10));
+        int alturaMaxTabla = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.28);
         scrollTabla.setMaximumSize(new Dimension(Integer.MAX_VALUE, alturaMaxTabla));
         scrollTabla.setPreferredSize(new Dimension(scrollTabla.getPreferredSize().width, alturaMaxTabla));
         panelTituloTabla.add(scrollTabla);
-        // Limitar altura del calendario al 50% de la pantalla
         int alturaMaxCalendario = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.5);
         panelCalendario.setMaximumSize(new Dimension(Integer.MAX_VALUE, alturaMaxCalendario));
         panelCalendario.setPreferredSize(new Dimension(panelCalendario.getPreferredSize().width, alturaMaxCalendario));
@@ -59,7 +51,7 @@ public class VentanaPrincipal extends JFrame {
         scrollCentral.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollCentral, BorderLayout.CENTER);
 
-        // Panel inferior: botones de acción
+        // panel de botones
         JPanel panelBotones = new JPanel();
         panelBotones.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 10));
         btnAgregarEvento = new JButton("Agregar evento");

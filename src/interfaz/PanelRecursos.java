@@ -131,6 +131,17 @@ public class PanelRecursos extends JPanel {
         actualizarTablaGlobales(filtrados);
     }
 
+    private boolean puedeAgregarSalon(Salon salonNuevo) {
+        Salon salonExistente = recursosEvento.stream().filter(s -> s instanceof Salon).map(s -> (Salon) s).findFirst().orElse(null);
+        if (salonExistente != null) {
+            int resp = JOptionPane.showConfirmDialog(this,
+                    "Este evento ya cuenta con un salón (" + salonExistente.getNombre() + "). ¿Estás seguro de que deseas agregar un salón adicional?",
+                    "Agregar salón adicional", JOptionPane.YES_NO_OPTION);
+            return resp == JOptionPane.YES_OPTION;
+        }
+        return true;
+    }
+
     private void agregarSeleccionados() {
         int[] filas = tablaGlobales.getSelectedRows();
         for (int fila : filas) {
@@ -138,14 +149,7 @@ public class PanelRecursos extends JPanel {
             Recurso r = recursosGlobales.stream().filter(rec -> rec.getId() == id).findFirst().orElse(null);
             if (r != null && !recursosEvento.contains(r)) {
                 if (r instanceof Salon) {
-                    Salon salonNuevo = (Salon) r;
-                    Salon salonExistente = recursosEvento.stream().filter(s -> s instanceof Salon).map(s -> (Salon) s).findFirst().orElse(null);
-                    if (salonExistente != null) {
-                        int resp = JOptionPane.showConfirmDialog(this,
-                                "Este evento ya cuenta con un salón (" + salonExistente.getNombre() + "). ¿Estás seguro de que deseas agregar un salón adicional?",
-                                "Agregar salón adicional", JOptionPane.YES_NO_OPTION);
-                        if (resp != JOptionPane.YES_OPTION) continue;
-                    }
+                    if (!puedeAgregarSalon((Salon) r)) continue;
                 }
                 recursosEvento.add(r);
             }
@@ -198,13 +202,7 @@ public class PanelRecursos extends JPanel {
         Recurso r = recursosGlobales.stream().filter(rec -> rec.getId() == id).findFirst().orElse(null);
         if (r != null && !recursosEvento.contains(r)) {
             if (r instanceof Salon) {
-                Salon salonExistente = recursosEvento.stream().filter(s -> s instanceof Salon).map(s -> (Salon) s).findFirst().orElse(null);
-                if (salonExistente != null) {
-                    int resp = JOptionPane.showConfirmDialog(this,
-                            "Este evento ya cuenta con un salón (" + salonExistente.getNombre() + "). ¿Estás seguro de que deseas agregar un salón adicional?",
-                            "Agregar salón adicional", JOptionPane.YES_NO_OPTION);
-                    if (resp != JOptionPane.YES_OPTION) return;
-                }
+                if (!puedeAgregarSalon((Salon) r)) return;
             }
             recursosEvento.add(r);
             actualizarTablas();

@@ -2,30 +2,22 @@ package interfaz;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.ArrayList;
 import modelo.Asistente;
 import modelo.recursos.Recurso;
-import interfaz.PanelAsistentes;
-import interfaz.PanelRecursos;
 import modelo.recursos.Ubicacion;
 import gestor.GestorUbicaciones;
 import util.ValidadorCampos;
 
-// Formulario para agregar o editar un evento
 public class FormularioEvento extends JDialog {
     private JTextField txtNombre;
     private JTextArea txtDescripcion;
-    private JTextField txtFecha; // formato: dd/MM/yyyy
+    private JTextField txtFecha;
     private JComboBox<Ubicacion> cmbUbicacion;
     private JButton btnAceptar;
     private JButton btnCancelar;
     private boolean aceptado = false;
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     private PanelAsistentes panelAsistentes;
     private PanelRecursos panelRecursos;

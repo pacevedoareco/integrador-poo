@@ -13,14 +13,10 @@ import java.time.LocalDate;
 import modelo.Evento;
 import modelo.recursos.Recurso;
 import modelo.Asistente;
-import modelo.recursos.Salon;
-import modelo.recursos.Catering;
-import modelo.recursos.EquipoAudiovisual;
 import java.io.IOException;
 
-// Clase utilitaria para la persistencia de datos en un archivo de texto unificado
 public class Persistencia {
-    private static final String ARCHIVO_UNIFICADO = "datos_eventos.txt";
+    private static final String ARCHIVO_EVENTOS = "datos_eventos.txt";
     private static int ultimoIdEvento = 0;
     private static int ultimoIdAsistente = 0;
     private static int ultimoIdRecurso = 0;
@@ -33,14 +29,14 @@ public class Persistencia {
         List<String> recursosGlobales = new ArrayList<>();
         List<String> ubicacionesGlobales = new ArrayList<>();
         int idx = 0;
-        for (; idx < lineas.size() && idx < 3; idx++); // esto es para saltear los IDs.
+        for (; idx < lineas.size() && idx < 3; idx++); // salteo los IDs, si existen.
         for (; idx < lineas.size(); idx++) {
             String l = lineas.get(idx);
             if (l.startsWith("ASISTENTE_GLOBAL|")) asistentesGlobales.add(l);
             else if (l.startsWith("RECURSO_GLOBAL|")) recursosGlobales.add(l);
             else if (l.startsWith("UBICACION_GLOBAL|")) ubicacionesGlobales.add(l);
         }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_UNIFICADO))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_EVENTOS))) {
             writer.write("ID_EVENTO|" + ultimoIdEvento); writer.newLine();
             writer.write("ID_ASISTENTE|" + ultimoIdAsistente); writer.newLine();
             writer.write("ID_RECURSO|" + ultimoIdRecurso); writer.newLine();
@@ -70,10 +66,10 @@ public class Persistencia {
         }
     }
 
-    // Carga todos los eventos, asistentes y recursos desde el archivo unificado, y los últimos IDs
+    // Carga todos los eventos, asistentes y recursos desde el archivo, y los últimos IDs
     public static List<Evento> cargarTodo() {
         Map<Integer, Evento> mapaEventos = new LinkedHashMap<>();
-        File archivo = new File(ARCHIVO_UNIFICADO);
+        File archivo = new File(ARCHIVO_EVENTOS);
         // Resetear IDs por defecto
         ultimoIdEvento = 0;
         ultimoIdAsistente = 0;
@@ -81,7 +77,7 @@ public class Persistencia {
         // Cargar ubicaciones globales primero
         List<modelo.recursos.Ubicacion> ubicaciones = cargarUbicacionesGlobales();
         if (!archivo.exists()) return new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_UNIFICADO))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_EVENTOS))) {
             String linea;
             while ((linea = reader.readLine()) != null) {
                 String[] partes = linea.split("\\|");
@@ -162,28 +158,77 @@ public class Persistencia {
         return ++ultimoIdRecurso;
     }
 
-    // Métodos para forzar la actualización de los IDs (por si se agregan manualmente)
-    public static void actualizarUltimoIdEvento(int id) {
-        if (id > ultimoIdEvento) ultimoIdEvento = id;
+    // --- Métodos utilitarios para bloques globales e IDs ---
+    private static void guardarBloqueGlobal(String prefijo, List<String> lineasBloque) {
+        List<String> lineas = leerTodasLasLineas();
+        List<String> nuevasLineas = new ArrayList<>();
+        int idx = 0;
+        // Copiar los IDs (primeras 3 líneas)
+        for (; idx < lineas.size() && idx < 3; idx++) {
+            nuevasLineas.add(lineas.get(idx));
+        }
+        // Saltar líneas del bloque viejo
+        while (idx < lineas.size() && lineas.get(idx).startsWith(prefijo)) {
+            idx++;
+        }
+        // Agregar el bloque nuevo
+        nuevasLineas.addAll(lineasBloque);
+        // Agregar el resto del archivo
+        for (; idx < lineas.size(); idx++) {
+            nuevasLineas.add(lineas.get(idx));
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_EVENTOS))) {
+            for (String l : nuevasLineas) writer.write(l + "\n");
+        } catch (IOException e) {
+            System.out.println("Error al guardar bloque global: " + e.getMessage());
+        }
     }
-    public static void actualizarUltimoIdAsistente(int id) {
-        if (id > ultimoIdAsistente) ultimoIdAsistente = id;
+
+    private static List<String[]> cargarBloqueGlobal(String prefijo, int camposEsperados) {
+        List<String[]> resultado = new ArrayList<>();
+        File archivo = new File(ARCHIVO_EVENTOS);
+        if (!archivo.exists()) return resultado;
+        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_EVENTOS))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                if (linea.startsWith(prefijo)) {
+                    String[] partes = linea.split("\\|", camposEsperados);
+                    if (partes.length >= camposEsperados) {
+                        resultado.add(partes);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Error al cargar bloque global: " + e.getMessage());
+        }
+        return resultado;
     }
-    public static void actualizarUltimoIdRecurso(int id) {
-        if (id > ultimoIdRecurso) ultimoIdRecurso = id;
+
+    private static void actualizarIdEnArchivo(String idKey, int nuevoValor) {
+        List<String> lineas = leerTodasLasLineas();
+        List<String> nuevasLineas = new ArrayList<>();
+        boolean actualizado = false;
+        for (String l : lineas) {
+            if (l.startsWith(idKey + "|")) {
+                nuevasLineas.add(idKey + "|" + nuevoValor);
+                actualizado = true;
+            } else {
+                nuevasLineas.add(l);
+            }
+        }
+        if (!actualizado) {
+            nuevasLineas.add(0, idKey + "|" + nuevoValor);
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_EVENTOS))) {
+            for (String l : nuevasLineas) writer.write(l + "\n");
+        } catch (IOException e) {
+            System.out.println("Error al actualizar ID en archivo: " + e.getMessage());
+        }
     }
 
     // --- Recursos globales ---
     public static void guardarRecursosGlobales(List<Recurso> recursos) {
-        List<String> lineas = leerTodasLasLineas();
-        List<String> nuevasLineas = new ArrayList<>();
-        int idx = 0;
-        for (; idx < lineas.size() && idx < 3; idx++) {
-            nuevasLineas.add(lineas.get(idx));
-        }
-        while (idx < lineas.size() && lineas.get(idx).startsWith("RECURSO_GLOBAL|")) {
-            idx++;
-        }
+        List<String> lineasBloque = new ArrayList<>();
         for (Recurso recurso : recursos) {
             String[] partesSerializadas = recurso.serializar().split("\\|", 4);
             String tipo = partesSerializadas[0];
@@ -191,49 +236,74 @@ public class Persistencia {
             String nombre = recurso.getNombre();
             String atributoExtra = partesSerializadas.length > 3 ? partesSerializadas[3] : "";
             String linea = "RECURSO_GLOBAL|" + id + "|" + tipo + "|" + nombre + "|" + atributoExtra;
-            nuevasLineas.add(linea);
+            lineasBloque.add(linea);
         }
-        for (; idx < lineas.size(); idx++) {
-            nuevasLineas.add(lineas.get(idx));
-        }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_UNIFICADO))) {
-            for (String l : nuevasLineas) writer.write(l + "\n");
-        } catch (IOException e) {
-            System.out.println("Error al guardar recursos globales: " + e.getMessage());
-        }
+        guardarBloqueGlobal("RECURSO_GLOBAL|", lineasBloque);
+        actualizarIdEnArchivo("ID_RECURSO", ultimoIdRecurso);
     }
 
     public static List<Recurso> cargarRecursosGlobales() {
         List<Recurso> recursos = new ArrayList<>();
-        File archivo = new File(ARCHIVO_UNIFICADO);
-        // Cargar ubicaciones globales primero
         List<modelo.recursos.Ubicacion> ubicaciones = cargarUbicacionesGlobales();
-        if (!archivo.exists()) return recursos;
-        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_UNIFICADO))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] partes = linea.split("\\|");
-                if (partes.length >= 5 && "RECURSO_GLOBAL".equals(partes[0])) {
-                    int id = Integer.parseInt(partes[1]);
-                    String tipo = partes[2];
-                    String nombre = partes[3];
-                    String atributoExtra = partes[4];
-                    Recurso recurso = Recurso.deserializar(tipo, id, nombre, atributoExtra, ubicaciones);
-                    if (recurso != null) recursos.add(recurso);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al cargar recursos globales: " + e.getMessage());
+        for (String[] partes : cargarBloqueGlobal("RECURSO_GLOBAL|", 5)) {
+            int id = Integer.parseInt(partes[1]);
+            String tipo = partes[2];
+            String nombre = partes[3];
+            String atributoExtra = partes[4];
+            Recurso recurso = Recurso.deserializar(tipo, id, nombre, atributoExtra, ubicaciones);
+            if (recurso != null) recursos.add(recurso);
         }
         return recursos;
+    }
+
+    // --- Asistentes globales ---
+    public static void guardarAsistentesGlobales(List<Asistente> asistentes) {
+        List<String> lineasBloque = new ArrayList<>();
+        for (Asistente asistente : asistentes) {
+            String linea = "ASISTENTE_GLOBAL|" + asistente.getId() + "|" + asistente.getNombre() + "|" + asistente.getEmail();
+            lineasBloque.add(linea);
+        }
+        guardarBloqueGlobal("ASISTENTE_GLOBAL|", lineasBloque);
+        actualizarIdEnArchivo("ID_ASISTENTE", ultimoIdAsistente);
+    }
+
+    public static List<Asistente> cargarAsistentesGlobales() {
+        List<Asistente> asistentes = new ArrayList<>();
+        for (String[] partes : cargarBloqueGlobal("ASISTENTE_GLOBAL|", 4)) {
+            int id = Integer.parseInt(partes[1]);
+            String nombre = partes[2];
+            String email = partes[3];
+            asistentes.add(new Asistente(id, nombre, email));
+        }
+        return asistentes;
+    }
+
+    // --- Ubicaciones globales ---
+    public static void guardarUbicacionesGlobales(List<modelo.recursos.Ubicacion> ubicaciones) {
+        List<String> lineasBloque = new ArrayList<>();
+        for (modelo.recursos.Ubicacion ubicacion : ubicaciones) {
+            String linea = "UBICACION_GLOBAL|" + ubicacion.getId() + "|" + ubicacion.getNombre();
+            lineasBloque.add(linea);
+        }
+        guardarBloqueGlobal("UBICACION_GLOBAL|", lineasBloque);
+    }
+
+    public static List<modelo.recursos.Ubicacion> cargarUbicacionesGlobales() {
+        List<modelo.recursos.Ubicacion> ubicaciones = new ArrayList<>();
+        for (String[] partes : cargarBloqueGlobal("UBICACION_GLOBAL|", 3)) {
+            int id = Integer.parseInt(partes[1]);
+            String nombre = partes[2];
+            ubicaciones.add(new modelo.recursos.Ubicacion(id, nombre));
+        }
+        return ubicaciones;
     }
 
     // Método utilitario para leer todas las líneas del archivo unificado
     private static List<String> leerTodasLasLineas() {
         List<String> lineas = new ArrayList<>();
-        File archivo = new File(ARCHIVO_UNIFICADO);
+        File archivo = new File(ARCHIVO_EVENTOS);
         if (!archivo.exists()) return lineas;
-        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_UNIFICADO))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_EVENTOS))) {
             String linea;
             while ((linea = reader.readLine()) != null) {
                 lineas.add(linea);
@@ -242,106 +312,5 @@ public class Persistencia {
             System.out.println("Error al leer líneas: " + e.getMessage());
         }
         return lineas;
-    }
-
-    // --- Asistentes globales ---
-    public static void guardarAsistentesGlobales(List<Asistente> asistentes) {
-        // Leer todas las líneas existentes
-        List<String> lineas = leerTodasLasLineas();
-        List<String> nuevasLineas = new ArrayList<>();
-        int idx = 0;
-        // Copiar los IDs (primeras 3 líneas)
-        for (; idx < lineas.size() && idx < 3; idx++) {
-            nuevasLineas.add(lineas.get(idx));
-        }
-        // Saltar líneas de asistentes globales viejos
-        while (idx < lineas.size() && lineas.get(idx).startsWith("ASISTENTE_GLOBAL|")) {
-            idx++;
-        }
-        // Agregar los asistentes globales nuevos
-        for (Asistente asistente : asistentes) {
-            String linea = "ASISTENTE_GLOBAL|" + asistente.getId() + "|" + asistente.getNombre() + "|" + asistente.getEmail();
-            nuevasLineas.add(linea);
-        }
-        // Agregar el resto del archivo (recursos globales, eventos, etc.)
-        for (; idx < lineas.size(); idx++) {
-            nuevasLineas.add(lineas.get(idx));
-        }
-        // Guardar todo
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_UNIFICADO))) {
-            for (String l : nuevasLineas) writer.write(l + "\n");
-        } catch (IOException e) {
-            System.out.println("Error al guardar asistentes globales: " + e.getMessage());
-        }
-    }
-
-    public static List<Asistente> cargarAsistentesGlobales() {
-        List<Asistente> asistentes = new ArrayList<>();
-        File archivo = new File(ARCHIVO_UNIFICADO);
-        if (!archivo.exists()) return asistentes;
-        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_UNIFICADO))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] partes = linea.split("\\|");
-                if (partes.length >= 4 && "ASISTENTE_GLOBAL".equals(partes[0])) {
-                    int id = Integer.parseInt(partes[1]);
-                    String nombre = partes[2];
-                    String email = partes[3];
-                    asistentes.add(new Asistente(id, nombre, email));
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al cargar asistentes globales: " + e.getMessage());
-        }
-        return asistentes;
-    }
-
-    // --- Ubicaciones globales ---
-    public static void guardarUbicacionesGlobales(List<modelo.recursos.Ubicacion> ubicaciones) {
-        List<String> lineas = leerTodasLasLineas();
-        List<String> nuevasLineas = new ArrayList<>();
-        int idx = 0;
-        // Copiar los IDs (primeras 3 líneas)
-        for (; idx < lineas.size() && idx < 3; idx++) {
-            nuevasLineas.add(lineas.get(idx));
-        }
-        // Saltar líneas de ubicaciones globales viejas
-        while (idx < lineas.size() && lineas.get(idx).startsWith("UBICACION_GLOBAL|")) {
-            idx++;
-        }
-        // Agregar las ubicaciones globales nuevas
-        for (modelo.recursos.Ubicacion ubicacion : ubicaciones) {
-            String linea = "UBICACION_GLOBAL|" + ubicacion.getId() + "|" + ubicacion.getNombre();
-            nuevasLineas.add(linea);
-        }
-        // Agregar el resto del archivo
-        for (; idx < lineas.size(); idx++) {
-            nuevasLineas.add(lineas.get(idx));
-        }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_UNIFICADO))) {
-            for (String l : nuevasLineas) writer.write(l + "\n");
-        } catch (IOException e) {
-            System.out.println("Error al guardar ubicaciones globales: " + e.getMessage());
-        }
-    }
-
-    public static List<modelo.recursos.Ubicacion> cargarUbicacionesGlobales() {
-        List<modelo.recursos.Ubicacion> ubicaciones = new ArrayList<>();
-        File archivo = new File(ARCHIVO_UNIFICADO);
-        if (!archivo.exists()) return ubicaciones;
-        try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_UNIFICADO))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] partes = linea.split("\\|");
-                if (partes.length >= 3 && "UBICACION_GLOBAL".equals(partes[0])) {
-                    int id = Integer.parseInt(partes[1]);
-                    String nombre = partes[2];
-                    ubicaciones.add(new modelo.recursos.Ubicacion(id, nombre));
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Error al cargar ubicaciones globales: " + e.getMessage());
-        }
-        return ubicaciones;
     }
 } 
