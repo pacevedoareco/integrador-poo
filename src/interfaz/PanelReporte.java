@@ -6,16 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.time.LocalDate;
-import java.time.format.TextStyle;
-import java.util.Locale;
 import modelo.Evento;
 import modelo.recursos.Recurso;
 import gestor.GestorEventos;
 import modelo.Asistente;
-import modelo.recursos.Ubicacion;
 
-// Panel de reportes visuales (modal)
 public class PanelReporte extends JDialog {
     private GestorEventos gestor;
     private JButton btnCerrar;
@@ -27,12 +22,12 @@ public class PanelReporte extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        JTabbedPane pestañas = new JTabbedPane();
-        pestañas.addTab("Resumen general", crearPanelResumenGeneral());
-        pestañas.addTab("Recursos más utilizados", crearPanelRecursos());
-        pestañas.addTab("Asistentes", crearPanelAsistentesFrecuentes());
-        pestañas.addTab("Próximos y recientes eventos", crearPanelProximosRecientes());
-        add(pestañas, BorderLayout.CENTER);
+        JTabbedPane pestanias = new JTabbedPane();
+        pestanias.addTab("Resumen general", crearPanelResumenGeneral());
+        pestanias.addTab("Recursos más utilizados", crearPanelRecursos());
+        pestanias.addTab("Asistentes", crearPanelAsistentesFrecuentes());
+        pestanias.addTab("Próximos y recientes eventos", crearPanelProximosRecientes());
+        add(pestanias, BorderLayout.CENTER);
 
         btnCerrar = new JButton("Cerrar");
         btnCerrar.addActionListener(e -> setVisible(false));
@@ -41,7 +36,6 @@ public class PanelReporte extends JDialog {
         add(panelBoton, BorderLayout.SOUTH);
     }
 
-    // 1. Resumen general
     private JPanel crearPanelResumenGeneral() {
         JPanel panel = new JPanel(new GridLayout(1, 2, 20, 10));
         panel.add(new GraficoEventosPorMes(gestor.listarEventos()));
@@ -49,19 +43,20 @@ public class PanelReporte extends JDialog {
         return panel;
     }
 
-    // 2. Recursos más utilizados
     private JPanel crearPanelRecursos() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.add(new GraficoRecursos(gestor.listarEventos()), BorderLayout.CENTER);
+        GraficoRecursos grafico = new GraficoRecursos(gestor.listarEventos());
+        JScrollPane scrollGrafico = new JScrollPane(grafico);
+        scrollGrafico.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollGrafico.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        panel.add(scrollGrafico, BorderLayout.CENTER);
         panel.add(new JScrollPane(resumenRecursos()), BorderLayout.EAST);
         return panel;
     }
 
-    // 3. Asistentes (tabla + gráfico)
     private JComponent crearPanelAsistentesFrecuentes() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        // Gráfico arriba con scroll vertical si es necesario
         GraficoAsistentesPorEvento grafico = new GraficoAsistentesPorEvento(gestor.listarEventos());
         JScrollPane scrollGrafico = new JScrollPane(grafico);
         scrollGrafico.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -76,7 +71,6 @@ public class PanelReporte extends JDialog {
         panel.add(Box.createVerticalStrut(5));
         JScrollPane tablaScroll = new JScrollPane(tablaAsistentesFrecuentes());
         tablaScroll.setAlignmentX(Component.LEFT_ALIGNMENT);
-        // Limitar altura de la tabla al 40% de la pantalla
         int alturaMaxTabla = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.4);
         tablaScroll.setMaximumSize(new Dimension(Integer.MAX_VALUE, alturaMaxTabla));
         tablaScroll.setPreferredSize(new Dimension(tablaScroll.getPreferredSize().width, alturaMaxTabla));
@@ -84,19 +78,17 @@ public class PanelReporte extends JDialog {
         return panel;
     }
 
-    // 4. Próximos y recientes eventos
     private JPanel crearPanelProximosRecientes() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.add(new JScrollPane(tablaProximosRecientes()), BorderLayout.CENTER);
         return panel;
     }
 
-    // --- Utilidades para armado de datos de reportes ---
     private static class DatosReportes {
         static Map<String, Integer> eventosPorMes(List<Evento> eventos) {
             Map<String, Integer> conteo = new LinkedHashMap<>();
             for (Evento ev : eventos) {
-                String mes = ev.getFecha().getMonth().getDisplayName(java.time.format.TextStyle.SHORT, new java.util.Locale("es", "ES")) + " " + ev.getFecha().getYear();
+                String mes = ev.getFecha().getMonth().getDisplayName(java.time.format.TextStyle.SHORT, new java.util.Locale("es", "AR")) + " " + ev.getFecha().getYear();
                 conteo.put(mes, conteo.getOrDefault(mes, 0) + 1);
             }
             return conteo;
@@ -167,8 +159,6 @@ public class PanelReporte extends JDialog {
         }
     }
 
-    // --- Gráficos personalizados ---
-    // 1.1 Gráfico de barras: eventos por mes
     private static class GraficoEventosPorMes extends JPanel {
         private final Map<String, Integer> datos;
         public GraficoEventosPorMes(List<Evento> eventos) {
@@ -202,7 +192,6 @@ public class PanelReporte extends JDialog {
         }
     }
 
-    // Clase base reutilizable para gráficos de barras horizontales
     private static abstract class PanelGraficoBarrasHorizontales extends JPanel {
         protected String titulo;
         protected Map<String, Integer> datos;
@@ -258,21 +247,22 @@ public class PanelReporte extends JDialog {
         }
     }
 
-    // 1.2 Gráfico de barras horizontal: eventos por ubicación
     private static class GraficoEventosPorUbicacion extends PanelGraficoBarrasHorizontales {
         public GraficoEventosPorUbicacion(List<Evento> eventos) {
             super("Eventos por ubicación", DatosReportes.eventosPorUbicacion(eventos), new Color(255, 193, 7));
         }
     }
 
-    // 2.1 Gráfico de barras horizontal: recursos más utilizados
     private static class GraficoRecursos extends PanelGraficoBarrasHorizontales {
         public GraficoRecursos(List<Evento> eventos) {
             super("Recursos más utilizados", DatosReportes.recursosMasUtilizados(eventos), new Color(76, 175, 80));
+            int cantidad = this.datos.size();
+            int altoBarra = 30, gap = 20;
+            int altura = 60 + (altoBarra + gap) * cantidad + 40;
+            setPreferredSize(new Dimension(400, Math.max(400, altura)));
         }
     }
 
-    // 2.2 Tabla resumen de uso de recursos por tipo
     private JTable resumenRecursos() {
         Map<String, Integer> conteo = DatosReportes.recursosPorTipo(gestor.listarEventos());
         String[] columnas = {"Tipo de recurso", "Cantidad usada"};
@@ -288,7 +278,6 @@ public class PanelReporte extends JDialog {
         return tabla;
     }
 
-    // 3. Tabla de asistentes frecuentes
     private JTable tablaAsistentesFrecuentes() {
         List<Object[]> filas = DatosReportes.asistentesFrecuentes(gestor.listarEventos());
         String[] columnas = {"Nombre", "Email", "Eventos"};
@@ -298,7 +287,6 @@ public class PanelReporte extends JDialog {
         return tabla;
     }
 
-    // 4. Tabla de próximos y recientes eventos
     private JTable tablaProximosRecientes() {
         List<Object[]> filas = DatosReportes.proximosYRecientes(gestor.listarEventos());
         String[] columnas = {"Tipo", "Nombre", "Fecha", "Ubicación", "Asistentes"};
@@ -308,7 +296,6 @@ public class PanelReporte extends JDialog {
         return tabla;
     }
 
-    // Gráfico de barras horizontal: asistentes por evento
     private static class GraficoAsistentesPorEvento extends PanelGraficoBarrasHorizontales {
         public GraficoAsistentesPorEvento(List<Evento> eventos) {
             super("Asistentes por evento", DatosReportes.asistentesPorEvento(eventos), new Color(33, 150, 243));

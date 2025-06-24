@@ -167,16 +167,15 @@ public class Persistencia {
         for (; idx < lineas.size() && idx < 3; idx++) {
             nuevasLineas.add(lineas.get(idx));
         }
-        // Saltar líneas del bloque viejo
-        while (idx < lineas.size() && lineas.get(idx).startsWith(prefijo)) {
-            idx++;
-        }
-        // Agregar el bloque nuevo
-        nuevasLineas.addAll(lineasBloque);
-        // Agregar el resto del archivo
+        // Eliminar todas las líneas que empiecen con el prefijo en el resto del archivo
         for (; idx < lineas.size(); idx++) {
-            nuevasLineas.add(lineas.get(idx));
+            String l = lineas.get(idx);
+            if (!l.startsWith(prefijo)) {
+                nuevasLineas.add(l);
+            }
         }
+        // Insertar el bloque nuevo después de los IDs
+        nuevasLineas.addAll(3, lineasBloque);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARCHIVO_EVENTOS))) {
             for (String l : nuevasLineas) writer.write(l + "\n");
         } catch (IOException e) {

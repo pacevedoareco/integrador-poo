@@ -12,7 +12,6 @@ import java.awt.event.MouseEvent;
 import interfaz.PanelReporte;
 import interfaz.VentanaGestionRecursos;
 import interfaz.VentanaGestionAsistentes;
-import interfaz.VistaDetalleEvento;
 import javax.swing.table.DefaultTableModel;
 import java.util.stream.Collectors;
 import java.util.List;
@@ -39,7 +38,7 @@ public class Main {
             ventana.getBtnAgregarEvento().addActionListener(e -> {
                 FormularioEvento form = new FormularioEvento(ventana);
                 form.setVisible(true);
-                if (form.isAceptado()) {
+                if (form.isGuardarPresionado()) {
                     try {
                         Evento nuevo = new Evento(
                             Persistencia.getSiguienteIdEvento(),
@@ -141,26 +140,20 @@ public class Main {
         int idEvento = (int) ventana.getTablaEventos().getValueAt(fila, 0);
         Evento evento = gestor.listarEventos().stream().filter(ev -> ev.getId() == idEvento).findFirst().orElse(null);
         if (evento == null) return;
-        VistaDetalleEvento vista = new VistaDetalleEvento(ventana, evento);
-        vista.setVisible(true);
-        if (vista.isGuardarPresionado()) {
+        FormularioEvento form = new FormularioEvento(ventana, evento);
+        form.setVisible(true);
+        if (form.isGuardarPresionado()) {
             try {
-                Evento editado = new Evento(
-                        evento.getId(),
-                        vista.getNombre(),
-                        vista.getDescripcion(),
-                        vista.getFechaLocalDate(),
-                        vista.getUbicacion()
-                );
-                editado.getAsistentes().addAll(vista.getAsistentes());
-                editado.getRecursos().addAll(vista.getRecursos());
+                Evento editado = form.getEventoEditado();
+                editado.getAsistentes().addAll(form.getAsistentes());
+                editado.getRecursos().addAll(form.getRecursos());
                 gestor.editarEvento(evento.getId(), editado);
                 cargarEventosMesActual(ventana, gestor);
                 JOptionPane.showMessageDialog(ventana, "Evento editado exitosamente.");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(ventana, "Error al editar el evento: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } else if (vista.isEliminarPresionado()) {
+        } else if (form.isEliminarPresionado()) {
             gestor.eliminarEvento(evento.getId());
             cargarEventosMesActual(ventana, gestor);
             JOptionPane.showMessageDialog(ventana, "Evento eliminado exitosamente.");

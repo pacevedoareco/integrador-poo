@@ -1,28 +1,6 @@
 ID_EVENTO|10
 ID_ASISTENTE|10
-ID_RECURSO|14
-RECURSO_GLOBAL|6|Salón|Salón A|1,100
-RECURSO_GLOBAL|7|Salón|Salón B|2,80
-RECURSO_GLOBAL|8|Salón|Salón C|1,55
-RECURSO_GLOBAL|9|Catering|Buffet Internacional|Vegano y tradicional
-RECURSO_GLOBAL|10|Catering|Parrilla completa|Carnes y ensaladas
-RECURSO_GLOBAL|11|Equipo Audiovisual|Proyector HD|Proyector y pantalla
-RECURSO_GLOBAL|12|Equipo Audiovisual|Sonido Premium|Consola y micrófonos
-RECURSO_GLOBAL|13|Salón|Sala Belgrano|2,15
-RECURSO_GLOBAL|14|Salón|Buffet|3,32
-UBICACION_GLOBAL|1|Centro de Convenciones
-UBICACION_GLOBAL|2|Hotel Plaza
-UBICACION_GLOBAL|3|Club Social
-UBICACION_GLOBAL|4|Quinta Los Robles
-UBICACION_GLOBAL|5|Salón del Río
-RECURSO_GLOBAL|6|Salón|Salón A|1,100
-RECURSO_GLOBAL|7|Salón|Salón B|2,80
-RECURSO_GLOBAL|8|Salón|Salón C|1,55
-RECURSO_GLOBAL|9|Catering|Buffet Internacional|Vegano y tradicional
-RECURSO_GLOBAL|10|Catering|Parrilla completa|Carnes y ensaladas
-RECURSO_GLOBAL|11|Equipo Audiovisual|Proyector HD|Proyector y pantalla
-RECURSO_GLOBAL|12|Equipo Audiovisual|Sonido Premium|Consola y micrófonos
-RECURSO_GLOBAL|13|Salón|Sala Belgrano|2,15
+ID_RECURSO|21
 ASISTENTE_GLOBAL|1|Ana Torres|ana@mail.com
 ASISTENTE_GLOBAL|2|Luis Pérez|luis@mail.com
 ASISTENTE_GLOBAL|3|María Gómez|maria@mail.com
@@ -33,6 +11,25 @@ ASISTENTE_GLOBAL|7|Sofía Díaz|sofia@mail.com
 ASISTENTE_GLOBAL|8|Javier Castro|javier@mail.com
 ASISTENTE_GLOBAL|9|Valeria Suárez|valeria@mail.com
 ASISTENTE_GLOBAL|10|Martín Gil|martin@mail.com
+ASISTENTE_GLOBAL|11|Isabella Moriones|isabella@mail.com
+RECURSO_GLOBAL|6|Salón|Salón A|1,100
+RECURSO_GLOBAL|7|Salón|Salón B|2,80
+RECURSO_GLOBAL|8|Salón|Salón C|1,55
+RECURSO_GLOBAL|9|Catering|Buffet Internacional|Vegano y tradicional
+RECURSO_GLOBAL|10|Catering|Parrilla completa|Carnes y ensaladas
+RECURSO_GLOBAL|11|Equipo Audiovisual|Proyector HD|Proyector y pantalla
+RECURSO_GLOBAL|12|Equipo Audiovisual|Sonido Premium|Consola y micrófonos
+RECURSO_GLOBAL|14|Salón|Buffet|3,32
+RECURSO_GLOBAL|18|Salón|Patio|1,202
+RECURSO_GLOBAL|13|Salón|Sala Belgrano|2,15
+RECURSO_GLOBAL|19|Salón|Patio|4,400
+RECURSO_GLOBAL|20|Salón|Auditorio|5,37
+RECURSO_GLOBAL|21|Equipo Audiovisual|Proyector barato|Para eventos chicos
+UBICACION_GLOBAL|1|Centro de Convenciones
+UBICACION_GLOBAL|2|Hotel Plaza
+UBICACION_GLOBAL|3|Club Social
+UBICACION_GLOBAL|4|Quinta Los Robles
+UBICACION_GLOBAL|5|Salón del Río
 EVENTO|1|Conferencia de Tecnología|Evento anual de tecnología|2025-06-24|1
 ASISTENTE|1|1|Ana Torres|ana@mail.com
 ASISTENTE|1|2|Luis Pérez|luis@mail.com
@@ -43,18 +40,27 @@ EVENTO|2|Fiesta Empresarial|Celebración anual|2025-06-25|2
 ASISTENTE|2|3|María Gómez|maria@mail.com
 ASISTENTE|2|4|Carlos Ruiz|carlos@mail.com
 ASISTENTE|2|5|Lucía Fernández|lucia@mail.com
+ASISTENTE|2|11|Isabella Moriones|isabella@mail.com
+ASISTENTE|2|10|Martín Gil|martin@mail.com
+ASISTENTE|2|8|Javier Castro|javier@mail.com
 RECURSO|2|7|Salón|Salón B|2,80
 RECURSO|2|10|Catering|Asado Argentino|Carnes y ensaladas
 RECURSO|2|12|Equipo Audiovisual|Sonido Premium|Consola y micrófonos
 EVENTO|3|Reunión de Club|Encuentro mensual|2025-06-23|3
 ASISTENTE|3|6|Pedro López|pedro@mail.com
 ASISTENTE|3|7|Sofía Díaz|sofia@mail.com
+ASISTENTE|3|5|Lucía Fernández|lucia@mail.com
+ASISTENTE|3|11|Isabella Moriones|isabella@mail.com
 RECURSO|3|10|Catering|Parrilla completa|Carnes y ensaladas
+RECURSO|3|14|Salón|Buffet|3,32
+RECURSO|3|11|Equipo Audiovisual|Proyector HD|Proyector y pantalla
 EVENTO|4|Cumpleaños Familiar|Festejo familiar|2025-06-28|4
 ASISTENTE|4|8|Javier Castro|javier@mail.com
 ASISTENTE|4|9|Valeria Suárez|valeria@mail.com
-RECURSO|4|6|Salón|Salón A|1,100
+ASISTENTE|4|10|Martín Gil|martin@mail.com
+ASISTENTE|4|11|Isabella Moriones|isabella@mail.com
 RECURSO|4|10|Catering|Asado Argentino|Carnes y ensaladas
+RECURSO|4|19|Salón|Patio|4,400
 EVENTO|5|Seminario de Marketing|Capacitación|2025-07-24|5
 ASISTENTE|5|10|Martín Gil|martin@mail.com
 ASISTENTE|5|1|Ana Torres|ana@mail.com
@@ -69,14 +75,18 @@ ASISTENTE|6|8|Javier Castro|javier@mail.com
 RECURSO|6|6|Salón|Salón A|1,100
 EVENTO|7|Evento de Mañana|Planificación|2025-06-25|2
 ASISTENTE|7|3|María Gómez|maria@mail.com
-EVENTO|8|Evento de Ayer|Revisión|2025-06-23|3
+RECURSO|7|13|Salón|Sala Belgrano|2,15
+RECURSO|7|21|Equipo Audiovisual|Proyector barato|Para eventos chicos
+EVENTO|8|Evento de Ayer|Revisión|2025-06-23|1
 ASISTENTE|8|4|Carlos Ruiz|carlos@mail.com
-RECURSO|8|8|Salón|Salón C|3,50
+ASISTENTE|8|11|Isabella Moriones|isabella@mail.com
+RECURSO|8|12|Equipo Audiovisual|Sonido Premium|Consola y micrófonos
+RECURSO|8|8|Salón|Salón C|1,55
 EVENTO|9|Evento en 4 días|Preparativos|2025-06-28|4
 ASISTENTE|9|5|Lucía Fernández|lucia@mail.com
 ASISTENTE|9|7|Sofía Díaz|sofia@mail.com
 ASISTENTE|9|10|Martín Gil|martin@mail.com
-RECURSO|9|6|Salón|Salón A|1,100
+RECURSO|9|19|Salón|Patio|4,400
 EVENTO|10|Evento Mes Próximo|Lanzamiento|2025-07-24|5
 ASISTENTE|10|6|Pedro López|martin@mail.com
 RECURSO|10|7|Salón|Salón B|2,80

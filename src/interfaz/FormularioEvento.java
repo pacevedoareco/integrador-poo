@@ -9,22 +9,35 @@ import modelo.recursos.Recurso;
 import modelo.recursos.Ubicacion;
 import gestor.GestorUbicaciones;
 import util.ValidadorCampos;
+import java.time.LocalDate;
+import modelo.Evento;
+import java.time.format.DateTimeFormatter;
 
 public class FormularioEvento extends JDialog {
     private JTextField txtNombre;
     private JTextArea txtDescripcion;
     private JTextField txtFecha;
     private JComboBox<Ubicacion> cmbUbicacion;
-    private JButton btnAceptar;
+    private JButton btnGuardar;
     private JButton btnCancelar;
-    private boolean aceptado = false;
+    private JButton btnEliminar;
+    private boolean guardarPresionado = false;
+    private boolean eliminarPresionado = false;
+    private Evento eventoOriginal;
 
     private PanelAsistentes panelAsistentes;
     private PanelRecursos panelRecursos;
-    private JTabbedPane pestañas;
+    private JTabbedPane pestanias;
+
+    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public FormularioEvento(JFrame parent) {
-        super(parent, "Agregar/Editar Evento", true);
+        this(parent, null);
+    }
+
+    public FormularioEvento(JFrame parent, Evento evento) {
+        super(parent, evento == null ? "Agregar Evento" : "Editar Evento", true);
+        this.eventoOriginal = evento;
         setSize(850, 500);
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
@@ -34,11 +47,12 @@ public class FormularioEvento extends JDialog {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        // gridx y gridy me permiten navegar la grilla
         gbc.gridx = 0;
         gbc.gridy = 0;
         panelCampos.add(new JLabel("Nombre:"), gbc);
         gbc.gridx = 1;
-        txtNombre = new JTextField(32);
+        txtNombre = new JTextField(evento != null ? evento.getNombre() : "", 32);
         txtNombre.setFont(new Font("Arial", Font.PLAIN, 16));
         panelCampos.add(txtNombre, gbc);
 
@@ -46,7 +60,7 @@ public class FormularioEvento extends JDialog {
         gbc.gridy++;
         panelCampos.add(new JLabel("Descripción:"), gbc);
         gbc.gridx = 1;
-        txtDescripcion = new JTextArea(5, 32);
+        txtDescripcion = new JTextArea(evento != null ? evento.getDescripcion() : "", 5, 32);
         txtDescripcion.setLineWrap(true);
         txtDescripcion.setWrapStyleWord(true);
         txtDescripcion.setFont(new Font("Arial", Font.PLAIN, 16));
@@ -56,9 +70,9 @@ public class FormularioEvento extends JDialog {
 
         gbc.gridx = 0;
         gbc.gridy++;
-        panelCampos.add(new JLabel("Fecha (dd/MM/yyyy):"), gbc);
+        panelCampos.add(new JLabel("Fecha (dd/mm/aaaa):"), gbc);
         gbc.gridx = 1;
-        txtFecha = new JTextField(32);
+        txtFecha = new JTextField(evento != null ? evento.getFecha().format(FORMATO_FECHA) : "", 32);
         txtFecha.setFont(new Font("Arial", Font.PLAIN, 16));
         panelCampos.add(txtFecha, gbc);
 
@@ -67,32 +81,41 @@ public class FormularioEvento extends JDialog {
         panelCampos.add(new JLabel("Ubicación:"), gbc);
         gbc.gridx = 1;
         cmbUbicacion = new JComboBox<>(GestorUbicaciones.getInstancia().listarUbicaciones().toArray(new Ubicacion[0]));
+        if (evento != null && evento.getUbicacion() != null) {
+            cmbUbicacion.setSelectedItem(evento.getUbicacion());
+        }
         panelCampos.add(cmbUbicacion, gbc);
 
         // Panel asistentes y recursos
-        panelAsistentes = new PanelAsistentes(new ArrayList<>());
-        panelRecursos = new PanelRecursos(new ArrayList<>(), (Ubicacion) cmbUbicacion.getSelectedItem());
-        pestañas = new JTabbedPane();
-        pestañas.addTab("Detalles", panelCampos);
-        pestañas.addTab("Asistentes", panelAsistentes);
-        pestañas.addTab("Recursos", panelRecursos);
-        add(pestañas, BorderLayout.CENTER);
+        panelAsistentes = new PanelAsistentes(evento != null ? evento.getAsistentes() : new ArrayList<>());
+        panelRecursos = new PanelRecursos(evento != null ? evento.getRecursos() : new ArrayList<>(), (Ubicacion) cmbUbicacion.getSelectedItem());
+        pestanias = new JTabbedPane();
+        pestanias.addTab("Detalles", panelCampos);
+        pestanias.addTab("Asistentes", panelAsistentes);
+        pestanias.addTab("Recursos", panelRecursos);
+        add(pestanias, BorderLayout.CENTER);
 
         JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        btnAceptar = new JButton("Aceptar");
+        btnGuardar = new JButton("Guardar");
         btnCancelar = new JButton("Cancelar");
-        panelBotones.add(btnAceptar);
+        btnEliminar = new JButton("Eliminar");
+        panelBotones.add(btnGuardar);
+        if (evento != null) panelBotones.add(btnEliminar);
         panelBotones.add(btnCancelar);
         add(panelBotones, BorderLayout.SOUTH);
 
-        btnAceptar.addActionListener(e -> {
+        btnGuardar.addActionListener(e -> {
             if (validarCampos()) {
-                aceptado = true;
+                guardarPresionado = true;
                 setVisible(false);
             }
         });
         btnCancelar.addActionListener(e -> {
-            aceptado = false;
+            guardarPresionado = false;
+            setVisible(false);
+        });
+        btnEliminar.addActionListener(e -> {
+            eliminarPresionado = true;
             setVisible(false);
         });
 
@@ -100,7 +123,7 @@ public class FormularioEvento extends JDialog {
             // Al cambiar la ubicación, actualizar el panel de recursos
             List<Recurso> recursosActuales = panelRecursos.getRecursos();
             panelRecursos = new PanelRecursos(recursosActuales, (Ubicacion) cmbUbicacion.getSelectedItem());
-            pestañas.setComponentAt(2, panelRecursos);
+            pestanias.setComponentAt(2, panelRecursos);
         });
     }
 
@@ -116,14 +139,14 @@ public class FormularioEvento extends JDialog {
         fechaIngresada = ValidadorCampos.normalizarFecha(fechaIngresada);
         txtFecha.setText(fechaIngresada);
         if (!ValidadorCampos.esFechaValida(fechaIngresada)) {
-            JOptionPane.showMessageDialog(this, "La fecha debe tener formato dd/MM/yyyy.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "La fecha debe tener formato dd/mm/aaaa.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;
     }
 
-    public boolean isAceptado() {
-        return aceptado;
+    public boolean isGuardarPresionado() {
+        return guardarPresionado;
     }
 
     public String getNombre() {
@@ -157,7 +180,21 @@ public class FormularioEvento extends JDialog {
         cmbUbicacion.setSelectedItem(ubicacion);
         panelAsistentes = new PanelAsistentes(asistentes);
         panelRecursos = new PanelRecursos(recursos, ubicacion);
-        pestañas.setComponentAt(1, panelAsistentes);
-        pestañas.setComponentAt(2, panelRecursos);
+        pestanias.setComponentAt(1, panelAsistentes);
+        pestanias.setComponentAt(2, panelRecursos);
+    }
+
+    public boolean isEliminarPresionado() {
+        return eliminarPresionado;
+    }
+
+    public Evento getEventoEditado() {
+        return new Evento(
+            eventoOriginal != null ? eventoOriginal.getId() : -1,
+            getNombre(),
+            getDescripcion(),
+            LocalDate.parse(getFecha(), FORMATO_FECHA),
+            getUbicacion()
+        );
     }
 } 

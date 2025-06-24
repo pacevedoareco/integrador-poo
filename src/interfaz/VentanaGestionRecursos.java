@@ -44,6 +44,8 @@ public class VentanaGestionRecursos extends JDialog {
         };
         tablaRecursos = new JTable(modeloTabla);
         JScrollPane scroll = new JScrollPane(tablaRecursos);
+        tablaRecursos.getColumnModel().getColumn(0).setMinWidth(0);
+        tablaRecursos.getColumnModel().getColumn(0).setMaxWidth(0);
         tablaRecursos.getColumnModel().getColumn(0).setWidth(0);
         add(scroll, BorderLayout.CENTER);
 
@@ -128,7 +130,6 @@ public class VentanaGestionRecursos extends JDialog {
         if ("Ubicación".equals(tipo)) {
             // Validar dependencias antes de eliminar
             boolean enUso = false;
-            // Buscar en salones globales
             for (Recurso r : gestor.listarRecursos()) {
                 if (r instanceof Salon) {
                     Salon s = (Salon) r;
@@ -138,14 +139,12 @@ public class VentanaGestionRecursos extends JDialog {
                     }
                 }
             }
-            // Buscar en eventos
             if (!enUso) {
                 for (Evento ev : gestorEventos.listarEventos()) {
                     if (ev.getUbicacion() != null && ev.getUbicacion().getId() == id) {
                         enUso = true;
                         break;
                     }
-                    // Buscar en recursos del evento
                     for (Recurso r : ev.getRecursos()) {
                         if (r instanceof Salon) {
                             Salon s = (Salon) r;
@@ -172,14 +171,20 @@ public class VentanaGestionRecursos extends JDialog {
 
     private void actualizarTabla() {
         modeloTabla.setRowCount(0);
-        // Listar recursos
+        java.util.List<Object[]> filas = new java.util.ArrayList<>();
         for (Recurso r : gestor.listarRecursos()) {
-            modeloTabla.addRow(new Object[]{r.getId(), r.getTipo(), r.getNombre(), r.getDetalle()});
+            String tipo = r.getTipo();
+            if(tipo.equals("Salón")){
+                Salon s = (Salon) r;
+                tipo = tipo.concat(" ("+ s.getUbicacion().getNombre() +")");
+            }
+            filas.add(new Object[]{r.getId(), tipo, r.getNombre(), r.getDetalle()});
         }
-        // Listar ubicaciones
         for (Ubicacion u : gestorUbicaciones.listarUbicaciones()) {
-            modeloTabla.addRow(new Object[]{u.getId(), u.getTipo(), u.getNombre(), u.getDetalle()});
+            filas.add(new Object[]{u.getId(), u.getTipo(), u.getNombre(), u.getDetalle()});
         }
+        filas.sort((a, b) -> a[1].toString().compareToIgnoreCase(b[1].toString()));
+        filas.forEach(f -> modeloTabla.addRow(f));
     }
 
     // Editar recurso por fila (doble clic)
