@@ -1,0 +1,37 @@
+ID_EVENTO|8
+ID_ASISTENTE|0
+ID_RECURSO|0
+RECURSO_GLOBAL|-1|Salón|chico|50
+ASISTENTE_GLOBAL|1|javier|javier@mail.com
+ASISTENTE_GLOBAL|2|pablo|pablo@mail.com
+ASISTENTE_GLOBAL|3|juli|juli@mail.com
+ASISTENTE_GLOBAL|4|bella|bella@test.com
+ASISTENTE_GLOBAL|5|isa|isa@test.com
+ASISTENTE_GLOBAL|6|otro|otro@prueba.com
+EVENTO|1|asdf|asdfasdff|2025-06-23|Salon C
+ASISTENTE|1|2|pablo|pablo@mail.com
+ASISTENTE|1|3|luis|luis@asdf.com
+ASISTENTE|1|4|juli|juli@mail.com
+ASISTENTE|1|1|jorge|jorge@mail.com
+ASISTENTE|1|5|bella|bella@ejemplo.com
+ASISTENTE|1|1|jorge|jo@ge.com
+RECURSO|1|2|Salón|medio|100
+RECURSO|1|3|Salón|grande|500
+RECURSO|1|4|Equipo Audiovisual|dj|juan
+EVENTO|4|nuevo evento|descript|2025-06-23|casa
+ASISTENTE|4|1|mark|mark@mail.com
+RECURSO|4|3|Salón|Mediano|150
+RECURSO|4|2|Salón|Chico|10
+RECURSO|4|6|Catering|Completo|Incluye opción vegetariana
+EVENTO|5|Un casorio|asdf|2025-06-23|casa
+ASISTENTE|5|1|asdf|mail@asd.com
+ASISTENTE|5|1|tomas|tomas@mail.com
+ASISTENTE|5|2|gabriel|gabriel@mail.com
+EVENTO|6|mas eventos|aah|2025-06-23|casa
+ASISTENTE|6|1|javier|javier@mail.com
+ASISTENTE|6|2|pablo|pablo@mail.com
+ASISTENTE|6|3|juli|juli@mail.com
+EVENTO|7|otro evento|basta|2025-06-23|casa
+ASISTENTE|7|1|tomas|tomas@mail.com
+EVENTO|8|casamiento de mi prima|una des|2025-06-26|casa
+ASISTENTE|8|1|jorge|jo@ge.com

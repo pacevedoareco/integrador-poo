@@ -1,0 +1,5 @@
+RECURSO_GLOBAL|-1|Ubicación|Casa|
+RECURSO_GLOBAL|-1|Ubicación|Casa|
+RECURSO_GLOBAL|-1|Ubicación|Casa|
+RECURSO_GLOBAL|-1|Ubicación|Principal|
+RECURSO_GLOBAL|-1|Ubicación|Buenos Aires|
