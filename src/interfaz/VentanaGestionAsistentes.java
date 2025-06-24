@@ -6,7 +6,6 @@ import java.awt.*;
 import gestor.GestorAsistentes;
 import modelo.Asistente;
 
-// Ventana modal para la gestión global de asistentes
 public class VentanaGestionAsistentes extends JDialog {
     private GestorAsistentes gestor;
     private JTable tablaAsistentes;
@@ -93,7 +92,7 @@ public class VentanaGestionAsistentes extends JDialog {
         }
     }
 
-    // Diálogo para crear o editar un asistente
+    // Uso un diálogo porque sólo necesito nombre y mail. Se puede cambiar a un form si se agregan más campos.
     private Asistente dialogoAsistente(Asistente original) {
         String nombre = JOptionPane.showInputDialog(this, "Nombre del asistente:", original == null ? "" : original.getNombre());
         if (nombre == null || nombre.trim().isEmpty()) return null;

@@ -1,6 +1,6 @@
-ID_EVENTO|10
+ID_EVENTO|11
 ID_ASISTENTE|10
-ID_RECURSO|21
+ID_RECURSO|23
 ASISTENTE_GLOBAL|1|Ana Torres|ana@mail.com
 ASISTENTE_GLOBAL|2|Luis Pérez|luis@mail.com
 ASISTENTE_GLOBAL|3|María Gómez|maria@mail.com
@@ -12,6 +12,7 @@ ASISTENTE_GLOBAL|8|Javier Castro|javier@mail.com
 ASISTENTE_GLOBAL|9|Valeria Suárez|valeria@mail.com
 ASISTENTE_GLOBAL|10|Martín Gil|martin@mail.com
 ASISTENTE_GLOBAL|11|Isabella Moriones|isabella@mail.com
+ASISTENTE_GLOBAL|12|Juliana|juli@otro.com
 RECURSO_GLOBAL|6|Salón|Salón A|1,100
 RECURSO_GLOBAL|7|Salón|Salón B|2,80
 RECURSO_GLOBAL|8|Salón|Salón C|1,55
@@ -25,11 +26,13 @@ RECURSO_GLOBAL|13|Salón|Sala Belgrano|2,15
 RECURSO_GLOBAL|19|Salón|Patio|4,400
 RECURSO_GLOBAL|20|Salón|Auditorio|5,37
 RECURSO_GLOBAL|21|Equipo Audiovisual|Proyector barato|Para eventos chicos
+RECURSO_GLOBAL|23|Salón|Casa blanca|22,4
 UBICACION_GLOBAL|1|Centro de Convenciones
 UBICACION_GLOBAL|2|Hotel Plaza
 UBICACION_GLOBAL|3|Club Social
 UBICACION_GLOBAL|4|Quinta Los Robles
 UBICACION_GLOBAL|5|Salón del Río
+UBICACION_GLOBAL|22|Tigre
 EVENTO|1|Conferencia de Tecnología|Evento anual de tecnología|2025-06-24|1
 ASISTENTE|1|1|Ana Torres|ana@mail.com
 ASISTENTE|1|2|Luis Pérez|luis@mail.com
@@ -90,3 +93,10 @@ RECURSO|9|19|Salón|Patio|4,400
 EVENTO|10|Evento Mes Próximo|Lanzamiento|2025-07-24|5
 ASISTENTE|10|6|Pedro López|martin@mail.com
 RECURSO|10|7|Salón|Salón B|2,80
+EVENTO|11|Festejo del 25|Una fiesta de celebración!|2025-06-25|22
+ASISTENTE|11|11|Isabella Moriones|isabella@mail.com
+ASISTENTE|11|3|María Gómez|maria@mail.com
+ASISTENTE|11|12|Juliana|juli@otro.com
+RECURSO|11|21|Equipo Audiovisual|Proyector barato|Para eventos chicos
+RECURSO|11|23|Salón|Casa blanca|22,4
+RECURSO|11|10|Catering|Parrilla completa|Carnes y ensaladas

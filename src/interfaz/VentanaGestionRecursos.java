@@ -7,14 +7,11 @@ import gestor.GestorRecursos;
 import gestor.GestorUbicaciones;
 import modelo.recursos.Recurso;
 import modelo.recursos.Salon;
-import modelo.recursos.Catering;
-import modelo.recursos.EquipoAudiovisual;
 import modelo.recursos.Ubicacion;
 import persistencia.Persistencia;
 import gestor.GestorEventos;
 import modelo.Evento;
 
-// Ventana modal para la gestión global de recursos
 public class VentanaGestionRecursos extends JDialog {
     private GestorRecursos gestor;
     private GestorUbicaciones gestorUbicaciones;
@@ -187,7 +184,6 @@ public class VentanaGestionRecursos extends JDialog {
         filas.forEach(f -> modeloTabla.addRow(f));
     }
 
-    // Editar recurso por fila (doble clic)
     private void editarRecursoPorFila(int fila) {
         int id = (int) modeloTabla.getValueAt(fila, 0);
         String tipo = (String) modeloTabla.getValueAt(fila, 1);

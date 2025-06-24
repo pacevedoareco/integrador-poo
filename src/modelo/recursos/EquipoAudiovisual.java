@@ -1,6 +1,5 @@
 package modelo.recursos;
 
-// Clase que representa un equipo audiovisual como recurso
 public class EquipoAudiovisual extends Recurso {
     private String tipoEquipo;
 

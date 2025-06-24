@@ -10,7 +10,6 @@ import modelo.recursos.Ubicacion;
 import gestor.GestorUbicaciones;
 import persistencia.Persistencia;
 
-// Formulario modal para agregar o editar un recurso global
 public class FormularioRecursoGlobal extends JDialog {
     private JComboBox<String> cmbTipo;
     private JTextField txtNombre;

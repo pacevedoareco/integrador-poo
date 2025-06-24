@@ -24,12 +24,12 @@ public class GestorUbicaciones {
 
     public void agregarUbicacion(Ubicacion ubicacion) {
         ubicaciones.add(ubicacion);
-        // Persistir luego
+        Persistencia.guardarUbicacionesGlobales(ubicaciones);
     }
 
     public void eliminarUbicacion(int id) {
         ubicaciones.removeIf(u -> u.getId() == id);
-        // Persistir luego
+        Persistencia.guardarUbicacionesGlobales(ubicaciones);
     }
 
     public void editarUbicacion(Ubicacion ubicacionEditada) {
@@ -39,6 +39,6 @@ public class GestorUbicaciones {
                 break;
             }
         }
-        // Persistir luego
+        Persistencia.guardarUbicacionesGlobales(ubicaciones);
     }
 } 

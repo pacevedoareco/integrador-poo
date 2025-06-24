@@ -5,12 +5,10 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
 import modelo.Evento;
 
-// Panel que muestra el calendario mensual y los eventos
 public class PanelCalendario extends JPanel {
     private JButton btnAnterior;
     private JButton btnSiguiente;
@@ -25,7 +23,6 @@ public class PanelCalendario extends JPanel {
         setLayout(new BorderLayout());
         mesActual = LocalDate.now().withDayOfMonth(1);
 
-        // Panel de navegación
         JPanel panelNavegacion = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 4));
         btnAnterior = new JButton("< Anterior");
         btnSiguiente = new JButton("Siguiente >");
@@ -36,18 +33,16 @@ public class PanelCalendario extends JPanel {
         panelNavegacion.add(btnSiguiente);
         add(panelNavegacion, BorderLayout.NORTH);
 
-        // Panel de días
         panelDias = new JPanel();
-        panelDias.setLayout(new GridLayout(0, 7, 5, 5)); // 7 columnas para los días de la semana
+        panelDias.setLayout(new GridLayout(0, 7, 5, 5));
         add(panelDias, BorderLayout.CENTER);
 
-        // Inicializar los días del mes
         eventosDelMes = List.of();
         actualizarCalendario();
     }
 
     private String getNombreMes(LocalDate fecha) {
-        return fecha.getMonth().getDisplayName(TextStyle.FULL, new Locale("es", "ES")) + " " + fecha.getYear();
+        return fecha.getMonth().getDisplayName(TextStyle.FULL, java.util.Locale.forLanguageTag("es-AR")) + " " + fecha.getYear();
     }
 
     public void setEventosDelMes(List<Evento> eventos) {
@@ -57,7 +52,6 @@ public class PanelCalendario extends JPanel {
 
     public void actualizarCalendario() {
         panelDias.removeAll();
-        // Encabezados de los días de la semana
         for (String dia : DIAS_SEMANA) {
             JLabel lbl = new JLabel(dia, SwingConstants.CENTER);
             lbl.setFont(new Font("Arial", Font.BOLD, 13));
@@ -73,7 +67,7 @@ public class PanelCalendario extends JPanel {
         }
         LocalDate primerDia = mesActual;
         int diasEnMes = primerDia.lengthOfMonth();
-        int primerDiaSemana = primerDia.getDayOfWeek().getValue(); // 1=Lunes
+        int primerDiaSemana = primerDia.getDayOfWeek().getValue(); // Lunes es 1
         LocalDate hoy = LocalDate.now();
         boolean esMesActual = mesActual.getYear() == hoy.getYear() && mesActual.getMonthValue() == hoy.getMonthValue();
         // Espacios en blanco hasta el primer día (ajustado por encabezados)
@@ -102,7 +96,7 @@ public class PanelCalendario extends JPanel {
             lblDia.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
             if (esHoy) {
                 lblDia.setOpaque(true);
-                lblDia.setBackground(new Color(173, 216, 230)); // azul claro
+                lblDia.setBackground(new Color(173, 216, 230)); // celeste
                 lblDia.setFont(lblDia.getFont().deriveFont(Font.BOLD));
             }
             panelDias.add(lblDia);

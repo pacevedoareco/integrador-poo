@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import modelo.Asistente;
 import gestor.GestorAsistentes;
 
-// Panel para gestionar asistentes de un evento
 public class PanelAsistentes extends JPanel {
     private JTable tablaGlobales;
     private DefaultTableModel modeloGlobales;
@@ -27,7 +26,7 @@ public class PanelAsistentes extends JPanel {
         this.asistentesEvento = new ArrayList<>(asistentesIniciales);
         this.asistentesGlobales = GestorAsistentes.getInstancia().listarAsistentes();
 
-        // Campo de búsqueda y botón nuevo asistente
+        // Búsqueda con blur search y botón para crear
         JPanel panelBusqueda = new JPanel(new BorderLayout(5, 5));
         txtBuscar = new JTextField();
         btnNuevoAsistente = new JButton("Nuevo asistente");
@@ -38,14 +37,12 @@ public class PanelAsistentes extends JPanel {
         panelBusqueda.add(btnNuevoAsistente, BorderLayout.EAST);
         add(panelBusqueda, BorderLayout.NORTH);
 
-        // Tablas y botones
         JPanel panelTablas = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 1;
 
-        // Tabla asistentes globales
         String[] columnas = {"ID", "Nombre", "Email"};
         modeloGlobales = new DefaultTableModel(columnas, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -57,11 +54,10 @@ public class PanelAsistentes extends JPanel {
         tablaGlobales.getColumnModel().getColumn(0).setMaxWidth(0);
         tablaGlobales.getColumnModel().getColumn(0).setWidth(0);
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.5;
-        panelTablas.add(new JLabel("Asistentes registrados (anteriormente)"), gbc);
+        panelTablas.add(new JLabel("Asistentes previamente registrados"), gbc);
         gbc.gridy = 1;
         panelTablas.add(scrollGlobales, gbc);
 
-        // Botón agregar/quitar
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
         JPanel panelBtnsCentro = new JPanel(new GridLayout(2, 1, 0, 10));
@@ -72,7 +68,6 @@ public class PanelAsistentes extends JPanel {
         panelTablas.add(panelBtnsCentro, gbc);
         gbc.fill = GridBagConstraints.BOTH;
 
-        // Tabla asistentes del evento
         modeloEvento = new DefaultTableModel(columnas, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -89,7 +84,7 @@ public class PanelAsistentes extends JPanel {
 
         add(panelTablas, BorderLayout.CENTER);
 
-        // Listeners
+        // Listeners del blur search
         txtBuscar.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filtrarGlobales(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filtrarGlobales(); }
@@ -98,7 +93,8 @@ public class PanelAsistentes extends JPanel {
         btnAgregar.addActionListener(e -> agregarSeleccionados());
         btnQuitar.addActionListener(e -> quitarSeleccionados());
         btnNuevoAsistente.addActionListener(e -> crearNuevoAsistente());
-        // Doble clic en tabla de globales: agregar
+
+        // mover de izq a derecha al hacer doble click
         tablaGlobales.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -107,7 +103,7 @@ public class PanelAsistentes extends JPanel {
                 }
             }
         });
-        // Doble clic en tabla de evento: quitar
+        // eliminar de la derecha al hacer doble click
         tablaEvento.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -183,23 +179,19 @@ public class PanelAsistentes extends JPanel {
         return new ArrayList<>(asistentesEvento);
     }
 
-    // Agrega un asistente global al evento por índice de fila
     private void agregarAsistentePorFila(int fila) {
         agregarAsistentesSeleccionados(tablaGlobales, modeloGlobales, asistentesGlobales);
     }
 
-    // Quita un asistente del evento por índice de fila
     private void quitarAsistentePorFila(int fila) {
         quitarAsistentesSeleccionados(tablaEvento, modeloEvento, asistentesEvento);
     }
 
-    // Crear un nuevo asistente global desde el panel
     private void crearNuevoAsistente() {
         String nombre = JOptionPane.showInputDialog(this, "Nombre del asistente:");
         if (nombre == null || nombre.trim().isEmpty()) return;
         String email = JOptionPane.showInputDialog(this, "Email del asistente:");
         if (email == null || email.trim().isEmpty()) return;
-        // Verificar email único
         boolean existe = asistentesGlobales.stream().anyMatch(a -> a.getEmail().equalsIgnoreCase(email.trim()));
         if (existe) {
             JOptionPane.showMessageDialog(this, "El asistente ya se encuentra registrado con ese mail.", "Error", JOptionPane.ERROR_MESSAGE);

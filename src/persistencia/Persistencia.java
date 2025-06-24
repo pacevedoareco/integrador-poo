@@ -21,7 +21,6 @@ public class Persistencia {
     private static int ultimoIdAsistente = 0;
     private static int ultimoIdRecurso = 0;
 
-    // Guarda todos los eventos, asistentes y recursos en un solo archivo, incluyendo los últimos IDs
     public static void guardarTodo(List<Evento> eventos) {
         // Leer líneas existentes para conservar asistentes, recursos y ubicaciones globales
         List<String> lineas = leerTodasLasLineas();
@@ -66,16 +65,14 @@ public class Persistencia {
         }
     }
 
-    // Carga todos los eventos, asistentes y recursos desde el archivo, y los últimos IDs
     public static List<Evento> cargarTodo() {
         Map<Integer, Evento> mapaEventos = new LinkedHashMap<>();
         File archivo = new File(ARCHIVO_EVENTOS);
-        // Resetear IDs por defecto
         ultimoIdEvento = 0;
         ultimoIdAsistente = 0;
         ultimoIdRecurso = 0;
-        // Cargar ubicaciones globales primero
         List<modelo.recursos.Ubicacion> ubicaciones = cargarUbicacionesGlobales();
+
         if (!archivo.exists()) return new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(ARCHIVO_EVENTOS))) {
             String linea;
@@ -145,7 +142,6 @@ public class Persistencia {
         return new ArrayList<>(mapaEventos.values());
     }
 
-    // Métodos para obtener y actualizar los últimos IDs
     public static int getSiguienteIdEvento() {
         return ++ultimoIdEvento;
     }
@@ -158,12 +154,12 @@ public class Persistencia {
         return ++ultimoIdRecurso;
     }
 
-    // --- Métodos utilitarios para bloques globales e IDs ---
+    // Utilitario para bloques
     private static void guardarBloqueGlobal(String prefijo, List<String> lineasBloque) {
         List<String> lineas = leerTodasLasLineas();
         List<String> nuevasLineas = new ArrayList<>();
         int idx = 0;
-        // Copiar los IDs (primeras 3 líneas)
+        // Copiar los IDs
         for (; idx < lineas.size() && idx < 3; idx++) {
             nuevasLineas.add(lineas.get(idx));
         }
@@ -225,7 +221,6 @@ public class Persistencia {
         }
     }
 
-    // --- Recursos globales ---
     public static void guardarRecursosGlobales(List<Recurso> recursos) {
         List<String> lineasBloque = new ArrayList<>();
         for (Recurso recurso : recursos) {
@@ -255,7 +250,6 @@ public class Persistencia {
         return recursos;
     }
 
-    // --- Asistentes globales ---
     public static void guardarAsistentesGlobales(List<Asistente> asistentes) {
         List<String> lineasBloque = new ArrayList<>();
         for (Asistente asistente : asistentes) {
@@ -277,7 +271,6 @@ public class Persistencia {
         return asistentes;
     }
 
-    // --- Ubicaciones globales ---
     public static void guardarUbicacionesGlobales(List<modelo.recursos.Ubicacion> ubicaciones) {
         List<String> lineasBloque = new ArrayList<>();
         for (modelo.recursos.Ubicacion ubicacion : ubicaciones) {
@@ -297,7 +290,6 @@ public class Persistencia {
         return ubicaciones;
     }
 
-    // Método utilitario para leer todas las líneas del archivo unificado
     private static List<String> leerTodasLasLineas() {
         List<String> lineas = new ArrayList<>();
         File archivo = new File(ARCHIVO_EVENTOS);

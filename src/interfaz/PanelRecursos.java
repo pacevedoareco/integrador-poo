@@ -9,11 +9,8 @@ import java.util.stream.Collectors;
 import modelo.recursos.Recurso;
 import gestor.GestorRecursos;
 import modelo.recursos.Salon;
-import modelo.recursos.Catering;
-import modelo.recursos.EquipoAudiovisual;
 import modelo.recursos.Ubicacion;
 
-// Panel para gestionar recursos de un evento
 public class PanelRecursos extends JPanel {
     private JTable tablaGlobales;
     private DefaultTableModel modeloGlobales;
@@ -32,21 +29,18 @@ public class PanelRecursos extends JPanel {
         this.recursosGlobales = GestorRecursos.getInstancia().listarRecursos();
         this.ubicacionEvento = ubicacionEvento;
 
-        // Campo de búsqueda
         JPanel panelBusqueda = new JPanel(new BorderLayout(5, 5));
         txtBuscar = new JTextField();
         panelBusqueda.add(new JLabel("Buscar recurso global:"), BorderLayout.WEST);
         panelBusqueda.add(txtBuscar, BorderLayout.CENTER);
         add(panelBusqueda, BorderLayout.NORTH);
 
-        // Tablas y botones
         JPanel panelTablas = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 1;
 
-        // Tabla recursos globales
         String[] columnas = {"ID", "Tipo", "Nombre", "Detalle"};
         modeloGlobales = new DefaultTableModel(columnas, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
@@ -62,7 +56,6 @@ public class PanelRecursos extends JPanel {
         gbc.gridy = 1;
         panelTablas.add(scrollGlobales, gbc);
 
-        // Botón agregar
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0;
         gbc.fill = GridBagConstraints.NONE;
         JPanel panelBtnsCentro = new JPanel(new GridLayout(2, 1, 0, 10));
@@ -73,7 +66,6 @@ public class PanelRecursos extends JPanel {
         panelTablas.add(panelBtnsCentro, gbc);
         gbc.fill = GridBagConstraints.BOTH;
 
-        // Tabla recursos del evento
         modeloEvento = new DefaultTableModel(columnas, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -90,7 +82,7 @@ public class PanelRecursos extends JPanel {
 
         add(panelTablas, BorderLayout.CENTER);
 
-        // Listeners
+        // listeners para blur search
         txtBuscar.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filtrarGlobales(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filtrarGlobales(); }
@@ -98,7 +90,7 @@ public class PanelRecursos extends JPanel {
         });
         btnAgregar.addActionListener(e -> agregarSeleccionados());
         btnQuitar.addActionListener(e -> quitarSeleccionados());
-        // Doble clic en tabla de recursos globales
+
         tablaGlobales.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -135,7 +127,7 @@ public class PanelRecursos extends JPanel {
         Salon salonExistente = recursosEvento.stream().filter(s -> s instanceof Salon).map(s -> (Salon) s).findFirst().orElse(null);
         if (salonExistente != null) {
             int resp = JOptionPane.showConfirmDialog(this,
-                    "Este evento ya cuenta con un salón (" + salonExistente.getNombre() + "). ¿Estás seguro de que deseas agregar un salón adicional?",
+                    "Este evento ya cuenta con un salón (" + salonExistente.getNombre() + "). ¿Estás seguro de agregar un salón adicional?",
                     "Agregar salón adicional", JOptionPane.YES_NO_OPTION);
             return resp == JOptionPane.YES_OPTION;
         }
@@ -196,7 +188,6 @@ public class PanelRecursos extends JPanel {
         return new ArrayList<>(recursosEvento);
     }
 
-    // Agrega un recurso global al evento por índice de fila (con control de salón)
     private void agregarRecursoPorFila(int fila) {
         int id = (int) modeloGlobales.getValueAt(fila, 0);
         Recurso r = recursosGlobales.stream().filter(rec -> rec.getId() == id).findFirst().orElse(null);

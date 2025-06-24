@@ -1,6 +1,5 @@
 package modelo;
 
-// Clase que representa a un asistente de un evento
 public class Asistente {
     private int id;
     private String nombre;

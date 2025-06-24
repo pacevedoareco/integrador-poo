@@ -1,6 +1,5 @@
 package modelo.recursos;
 
-// Clase que representa un servicio de catering como recurso
 public class Catering extends Recurso {
     private String tipoComida;
 

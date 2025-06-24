@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import modelo.recursos.Recurso;
 import modelo.recursos.Ubicacion;
 
-// Clase que representa un evento
 public class Evento {
     private int id;
     private String nombre;

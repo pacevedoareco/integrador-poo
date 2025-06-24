@@ -88,7 +88,7 @@ public class PanelReporte extends JDialog {
         static Map<String, Integer> eventosPorMes(List<Evento> eventos) {
             Map<String, Integer> conteo = new LinkedHashMap<>();
             for (Evento ev : eventos) {
-                String mes = ev.getFecha().getMonth().getDisplayName(java.time.format.TextStyle.SHORT, new java.util.Locale("es", "AR")) + " " + ev.getFecha().getYear();
+                String mes = ev.getFecha().getMonth().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.forLanguageTag("es-AR")) + " " + ev.getFecha().getYear();
                 conteo.put(mes, conteo.getOrDefault(mes, 0) + 1);
             }
             return conteo;

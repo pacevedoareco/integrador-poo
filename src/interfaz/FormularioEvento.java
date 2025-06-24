@@ -42,7 +42,6 @@ public class FormularioEvento extends JDialog {
         setLocationRelativeTo(parent);
         setLayout(new BorderLayout(10, 10));
 
-        // Pestaña Detalles
         JPanel panelCampos = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(8, 8, 8, 8);
@@ -86,7 +85,7 @@ public class FormularioEvento extends JDialog {
         }
         panelCampos.add(cmbUbicacion, gbc);
 
-        // Panel asistentes y recursos
+        
         panelAsistentes = new PanelAsistentes(evento != null ? evento.getAsistentes() : new ArrayList<>());
         panelRecursos = new PanelRecursos(evento != null ? evento.getRecursos() : new ArrayList<>(), (Ubicacion) cmbUbicacion.getSelectedItem());
         pestanias = new JTabbedPane();
